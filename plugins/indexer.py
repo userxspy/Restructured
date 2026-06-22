@@ -12,14 +12,14 @@ lock = asyncio.Lock()
 
 
 # ==========================================
-# 📡 AUTO LIVE INDEXER  (was channel.py)
+# AUTO LIVE INDEXER
 # ==========================================
 
 MEDIA_FILTER = filters.document | filters.video | filters.audio
 
 @Client.on_message(filters.chat(INDEX_CHANNELS) & MEDIA_FILTER & filters.incoming)
 async def auto_channel_indexer(bot, message):
-    """Index channels में आने वाली नई files को automatically DB में live save करें"""
+    """Automatically save new files from index channels to the database."""
     media = message.document or message.video or message.audio
     if not media:
         return
@@ -28,12 +28,12 @@ async def auto_channel_indexer(bot, message):
 
 
 # ==========================================
-# 🗂️ MANUAL INDEXER — CALLBACK TRIGGER
+# MANUAL INDEXER — CALLBACK TRIGGER
 # ==========================================
 
 @Client.on_callback_query(filters.regex(r'^index'))
 async def index_files(bot, query):
-    """Callback handler to start or cancel channel indexing tasks"""
+    """Callback handler to start or cancel a channel indexing task."""
     data_parts = query.data.split("#")
     ident      = data_parts[1]
     chat_id    = data_parts[2]
@@ -52,25 +52,25 @@ async def index_files(bot, query):
 
     elif ident == 'cancel':
         temp.INDEX_CANCEL.add(str(chat))
-        await query.message.edit("<b>Progress: Canceling the indexing task... 🛑</b>")
+        await query.message.edit("<b>Canceling the indexing task... 🛑</b>")
 
 
 # ==========================================
-# 📨 MANUAL INDEXER — FORWARD / LINK TRIGGER
+# MANUAL INDEXER — FORWARD / LINK TRIGGER
 # ==========================================
 
 @Client.on_message(filters.forwarded & filters.private & filters.incoming & filters.user(ADMINS))
 async def send_for_index(bot, message):
-    """Triggers indexing from a forwarded message or a valid telegram link"""
+    """Trigger indexing from a forwarded message or a valid Telegram channel link."""
     if lock.locked():
         return await message.reply('<b>Please wait until the previous indexing task is completed! ❌</b>')
 
     msg = message
     if msg.text and msg.text.startswith("https://t.me"):
         try:
-            msg_link   = msg.text.split("/")
+            msg_link    = msg.text.split("/")
             last_msg_id = int(msg_link[-1])
-            chat_id    = msg_link[-2]
+            chat_id     = msg_link[-2]
             if chat_id.isnumeric():
                 chat_id = int("-100" + chat_id)
         except Exception:
@@ -114,11 +114,11 @@ async def send_for_index(bot, message):
 
 
 # ==========================================
-# ⚙️ CORE INDEXING LOOP
+# CORE INDEXING LOOP
 # ==========================================
 
 async def index_files_to_db(lst_msg_id, chat, msg, bot, skip):
-    """Core loop — parse और save files to MongoDB without lag"""
+    """Core indexing loop — parse and save files to MongoDB."""
     start_time  = time.time()
     total_files = duplicate = errors = deleted = no_media = unsupported = 0
     current     = skip
@@ -132,9 +132,9 @@ async def index_files_to_db(lst_msg_id, chat, msg, bot, skip):
                 if str(chat) in temp.INDEX_CANCEL:
                     temp.INDEX_CANCEL.remove(str(chat))
                     await msg.edit_text(
-                        f"<b>🛑 Indexing Task Cancelled Successfully!</b>\n\n"
+                        f"<b>🛑 Indexing Cancelled!</b>\n\n"
                         f"⏳ Time Taken: {time_taken}\n"
-                        f"📂 Total Saved Files: <code>{total_files}</code>\n"
+                        f"📂 Files Saved: <code>{total_files}</code>\n"
                         f"♻️ Duplicates Skipped: <code>{duplicate}</code>\n"
                         f"🗑️ Deleted Skipped: <code>{deleted}</code>\n"
                         f"❌ Non-Media Skipped: <code>{no_media + unsupported}</code>\n"
@@ -152,9 +152,9 @@ async def index_files_to_db(lst_msg_id, chat, msg, bot, skip):
                     )]]
                     try:
                         await msg.edit_text(
-                            text=f"<b>📊 Indexing Progress Report:</b>\n\n"
-                                 f"🔹 Total Processed: <code>{current}</code>\n"
-                                 f"📥 Saved Files: <code>{total_files}</code>\n"
+                            text=f"<b>📊 Indexing Progress:</b>\n\n"
+                                 f"🔹 Processed: <code>{current}</code>\n"
+                                 f"📥 Saved: <code>{total_files}</code>\n"
                                  f"♻️ Duplicates: <code>{duplicate}</code>\n"
                                  f"🗑️ Deleted: <code>{deleted}</code>\n"
                                  f"⚠️ Errors: <code>{errors}</code>",
@@ -192,12 +192,12 @@ async def index_files_to_db(lst_msg_id, chat, msg, bot, skip):
                     errors += 1
 
         except Exception as e:
-            await msg.reply(f'<b>❌ Index task interrupted:</b>\n<code>{e}</code>')
+            await msg.reply(f'<b>❌ Indexing interrupted:</b>\n<code>{e}</code>')
         else:
             time_taken = get_readable_time(time.time() - start_time)
             await msg.edit_text(
                 f"<b>✅ Channel Indexed Successfully!</b>\n\n"
-                f"⏳ Total Time Taken: {time_taken}\n"
+                f"⏳ Total Time: {time_taken}\n"
                 f"📥 Files Saved: <code>{total_files}</code>\n"
                 f"♻️ Duplicates Skipped: <code>{duplicate}</code>\n"
                 f"🗑️ Deleted Skipped: <code>{deleted}</code>\n"
