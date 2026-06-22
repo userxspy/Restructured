@@ -163,6 +163,43 @@ async def showid(client, message):
     )
 
 
+# /link — reply to a file or send file then /link to get stream & download links
+@Client.on_message(filters.command('link') & filters.private & filters.incoming)
+async def get_link(client, message):
+    if message.from_user.id not in ADMINS:
+        return
+
+    # File must be in replied message
+    target = message.reply_to_message
+    if not target:
+        return await message.reply("<b>Usage: Send a file and reply to it with /link</b>")
+
+    media = target.document or target.video or target.audio
+    if not media:
+        return await message.reply("<b>❌ The replied message has no file (document/video/audio).</b>")
+
+    msg = await message.reply("⏳ Generating links...")
+
+    # Forward file to BIN_CHANNEL to get a message ID for streaming
+    try:
+        bin_msg = await target.forward(BIN_CHANNEL)
+    except Exception as e:
+        return await msg.edit(f"<b>❌ Error forwarding to BIN_CHANNEL:</b>\n<code>{e}</code>")
+
+    watch    = f"{URL}watch/{bin_msg.id}"
+    download = f"{URL}download/{bin_msg.id}"
+    file_name = getattr(media, 'file_name', 'File') or 'File'
+
+    btn = [[
+        InlineKeyboardButton("⚡ Watch Online",   url=watch),
+        InlineKeyboardButton("🚀 Fast Download",  url=download)
+    ]]
+    await msg.edit(
+        f"<b>🔗 Links for:</b> <code>{file_name}</code>",
+        reply_markup=InlineKeyboardMarkup(btn)
+    )
+
+
 # /search on/off  — जहाँ से चलाओ वहाँ का toggle
 @Client.on_message(filters.command('search') & filters.incoming)
 async def toggle_search(client, message):
