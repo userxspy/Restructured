@@ -185,5 +185,18 @@ class Database:
             upsert=True
         )
 
+    async def get_group_search_status(self, bot_id):
+        bot = await bot_col.find_one({'id': bot_id})
+        if bot and "bot_group_search" in bot:
+            return bot['bot_group_search']
+        return True
+
+    async def update_group_search_status(self, bot_id, enable):
+        await bot_col.update_one(
+            {'id': int(bot_id)},
+            {'$set': {'bot_group_search': enable}},
+            upsert=True
+        )
+
 
 db = Database()
