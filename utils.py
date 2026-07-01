@@ -3,7 +3,7 @@ from datetime import datetime
 
 
 class temp:
-    """Live session state manager for the bot."""
+    """State manager for the bot's live session"""
     START_TIME = 0
     ME = None
     CANCEL = False
@@ -15,7 +15,7 @@ class temp:
 
 
 def get_size(size):
-    """Convert file size from bytes to KB, MB, GB, etc."""
+    """Fast method to convert file size from Bytes to KB, MB, GB"""
     units = ["Bytes", "KB", "MB", "GB", "TB"]
     size = float(size)
     i = 0
@@ -26,7 +26,7 @@ def get_size(size):
 
 
 def get_readable_time(seconds):
-    """Convert seconds into a human-readable uptime string."""
+    """Function to make the bot's live uptime human-readable"""
     periods = [('d', 86400), ('h', 3600), ('m', 60), ('s', 1)]
     result = ''
     for period_name, period_seconds in periods:
@@ -37,19 +37,19 @@ def get_readable_time(seconds):
 
 
 def get_wish():
-    """Return a time-based greeting for the admin."""
+    """Function to greet the admin based on the time of day"""
     tz = pytz.timezone('Asia/Kolkata')
     now = datetime.now(tz).strftime("%H")
     if now < "12":
-        return "Good Morning 🌞"
+        return "ɢᴏᴏᴅ ᴍᴏʀɴɪɴɢ 🌞"
     elif now < "18":
-        return "Good Afternoon 🌗"
+        return "ɢᴏᴏᴅ ᴀꜰᴛᴇʀɴᴏᴏɴ 🌗"
     else:
-        return "Good Evening 🌘"
+        return "ɢᴏᴏᴅ ᴇᴠᴇɴɪɴɢ 🌘"
 
 
 async def get_seconds(time_string):
-    """Convert a time string (e.g. 5m, 1h) into seconds."""
+    """Function to convert a time string (e.g. 5m, 1h) into seconds"""
     def extract_value_and_unit(ts):
         value = ""
         index = 0
