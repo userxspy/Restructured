@@ -12,7 +12,9 @@ from hydrogram.file_id import FileId, FileType
 from hydrogram.types import Message
 
 from config import URL, BIN_CHANNEL
-from utils import temp
+from utils import temp, get_size
+from database import get_search_results, get_file_details
+from web_auth import login_required, check_credentials, create_session_token, SESSION_MAX_AGE
 
 routes = web.RouteTableDef()
 
@@ -226,3 +228,84 @@ async def download_handler(request):
         )
     except Exception as e:
         return web.Response(text=f"<h1>Streaming Core Error: {e}</h1>", content_type='text/html')
+
+
+# ==========================================
+# 🔐 WEB PANEL — LOGIN (Admin Only)
+# ==========================================
+
+@routes.get("/login")
+async def login_page(request):
+    async with aiofiles.open('web/template/login.html', mode='r', encoding='utf-8') as r:
+        template_content = await r.read()
+    error = request.query.get('error', '')
+    error_html = f'<div class="error">{error}</div>' if error else ''
+    html = template_content.replace('<!--ERROR-->', error_html)
+    return web.Response(text=html, content_type='text/html')
+
+
+@routes.post("/login")
+async def login_submit(request):
+    data     = await request.post()
+    username = data.get('username', '')
+    password = data.get('password', '')
+
+    if check_credentials(username, password):
+        resp = web.HTTPFound("/panel")
+        resp.set_cookie("session", create_session_token(), max_age=SESSION_MAX_AGE, httponly=True)
+        return resp
+    return web.HTTPFound("/login?error=Invalid username or password")
+
+
+@routes.get("/logout")
+async def logout(request):
+    resp = web.HTTPFound("/login")
+    resp.del_cookie("session")
+    return resp
+
+
+# ==========================================
+# 🔎 WEB PANEL — SEARCH & STREAM (Admin Only)
+# ==========================================
+
+@routes.get("/panel")
+@login_required
+async def panel_page(request):
+    async with aiofiles.open('web/template/panel.html', mode='r', encoding='utf-8') as r:
+        template_content = await r.read()
+    return web.Response(text=template_content, content_type='text/html')
+
+
+@routes.get("/panel/api/search")
+@login_required
+async def panel_search_api(request):
+    query  = request.query.get('q', '')
+    offset = int(request.query.get('offset', 0) or 0)
+    files, next_offset, total = await get_search_results(query, offset=offset)
+
+    results = [{
+        "file_id":   f.file_id,
+        "file_name": f.file_name,
+        "file_size": get_size(f.file_size) if f.file_size else "0 Bytes"
+    } for f in files]
+
+    return web.json_response({"results": results, "next_offset": next_offset, "total": total})
+
+
+@routes.get("/panel/stream/{file_id}")
+@login_required
+async def panel_stream(request):
+    """Web panel se select ki gayi file ko BIN_CHANNEL me forward karke watch/download link par redirect karo"""
+    file_id = request.match_info['file_id']
+    mode    = request.query.get('mode', 'watch')
+
+    file_details = await get_file_details(file_id)
+    if not file_details:
+        return web.Response(text="<h1>File not found! ❌</h1>", content_type='text/html')
+
+    file = file_details[0]
+    msg  = await temp.BOT.send_cached_media(chat_id=BIN_CHANNEL, file_id=file.file_id)
+
+    if mode == 'download':
+        return web.HTTPFound(f"{URL}download/{msg.id}")
+    return web.HTTPFound(f"{URL}watch/{msg.id}")
