@@ -129,6 +129,26 @@ REACTIONS = ["🤝", "😇", "🤗", "😍", "👍", "⚡️", "😎", "🔥"]
 
 
 # ==========================================
+# 🔐 WEB PANEL LOGIN (Admin Only)
+# ==========================================
+
+WEB_USERNAME = environ.get("WEB_USERNAME", "")
+if len(WEB_USERNAME) == 0:
+    print('Error - WEB_USERNAME is missing, exiting now')
+    exit()
+
+WEB_PASSWORD = environ.get("WEB_PASSWORD", "")
+if len(WEB_PASSWORD) == 0:
+    print('Error - WEB_PASSWORD is missing, exiting now')
+    exit()
+
+SECRET_KEY = environ.get("SECRET_KEY", "")
+if len(SECRET_KEY) == 0:
+    print('Error - SECRET_KEY is missing, exiting now')
+    exit()
+
+
+# ==========================================
 # 📝 MESSAGE TEMPLATES  (was Script.py)
 # ==========================================
 
@@ -154,23 +174,19 @@ No file found in the database with the keyword <code>{}</code>! 🥲
 
     FILE_CAPTION = FILE_CAPTION
 
-    HELP_TXT = """<b>🤖 Admin Commands List:</b>
+    HELP_TXT = """<b>Note - Click the button below for correct information about the commands. ⚙️</b>"""
 
-📂 <b>Indexing</b>
-🔹 /index_channels - View indexed channels
-🔹 Forward a channel message to start indexing
+    ADMIN_COMMAND_TXT = """<b>🤖 Admin Commands List:</b>
 
-📊 <b>Stats & Info</b>
-🔹 /stats - Live bot & database status
-🔹 /ping - Check response speed
-🔹 /id - View user or chat ID
+🔹 /index_channels - Check indexed channels
+🔹 /stats - View live status of bot and database
+🔹 /delete - Delete files using a specific query
+🔹 /delete_all - Delete all indexed files from database
+🔹 /restart - Restart the bot
+🔹 /set_pm_search - Turn PM search on or off (on/off)"""
 
-🗑️ <b>Database</b>
-🔹 /delete &lt;keyword&gt; - Delete files by keyword
-🔹 /delete_all - Wipe entire database
+    USER_COMMAND_TXT = """<b>🛠️ Configuration Commands:</b>
 
-🔍 <b>Search</b>
-🔹 /search on/off - Toggle search in current chat (PM or Group)
-
-🔗 <b>Links</b>
-🔹 /link - Reply to any file to get stream & download links"""
+🔹 /start - Check live status of the bot
+🔹 /set_caption - Set a custom file caption
+🔹 /id - View your user ID or the ID of a replied message"""
