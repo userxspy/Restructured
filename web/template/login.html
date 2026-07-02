@@ -4,9 +4,12 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Fast Finder — Login</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-:root{--red:#e50914;--bg1:#000;--bg2:#111;--txt:#fff;--box:#141414;--box-bd:rgba(255,255,255,.1);--txt-muted:#b3b3b3;}
+:root{--red:#e50914;--bg1:#000;--bg2:#111;--txt:#fff;--box:#141414;--box-bd:rgba(255,255,255,.1);--txt-muted:#b3b3b3;--btn-c:rgba(255,255,255,.08);}
+html.light{--bg1:#f8f9fa;--bg2:#e9ecef;--txt:#121212;--box:#fff;--box-bd:rgba(0,0,0,.15);--txt-muted:#555;--btn-c:rgba(0,0,0,.06);}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:linear-gradient(to bottom,var(--bg1),var(--bg2));font-family:'DM Sans',sans-serif;color:var(--txt);min-height:100vh;display:flex;align-items:center;justify-content:center;}
+body{background:linear-gradient(to bottom,var(--bg1),var(--bg2));font-family:'DM Sans',sans-serif;color:var(--txt);min-height:100vh;display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s;}
+.theme-btn{position:fixed;top:16px;right:16px;background:transparent;border:1px solid var(--box-bd);color:var(--txt);padding:7px 16px;border-radius:4px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:.3s;}
+.theme-btn:hover{background:var(--btn-c);}
 .card{width:100%;max-width:360px;background:var(--box);border:1px solid var(--box-bd);border-radius:12px;padding:36px 32px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
 .logo{font-size:26px;font-weight:900;color:var(--red);margin-bottom:24px;display:flex;align-items:center;gap:8px;}
 .nf-icon{background:var(--red);color:#fff;padding:2px 7px;border-radius:3px;}
@@ -19,6 +22,7 @@ button:hover{background:#ff1a1a;transform:translateY(-1px);}
 </style>
 </head>
 <body>
+<button class="theme-btn" id="theme-btn">Theme</button>
 <form class="card" method="POST" action="/login">
 <div class="logo"><span class="nf-icon">F</span> FAST FINDER</div>
 <label>Username</label>
@@ -28,4 +32,5 @@ button:hover{background:#ff1a1a;transform:translateY(-1px);}
 <button type="submit">Login</button>
 <!--ERROR-->
 </form>
+<!--THEME_SCRIPT-->
 </body></html>
