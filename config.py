@@ -187,4 +187,7 @@ No file found in the database with the keyword <code>{}</code>! 🥲
 🔹 /delete - Delete files using a specific query
 🔹 /delete_all - Delete all indexed files from database
 🔹 /ping - Check the bot's response speed
-🔹 /id - View your user ID or the ID of a replied message"""
+🔹 /id - View your user ID or the ID of a replied message
+🔹 /blacklist add [time] [word/pattern] - Blacklist a word/link (auto-delete after set time)
+🔹 /blacklist remove [word/pattern] - Remove a word/link from blacklist
+🔹 /blacklist list - View all blacklisted words/patterns"""
