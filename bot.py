@@ -16,6 +16,7 @@ from aiohttp import web
 from server import routes
 from config import LOG_CHANNEL, API_ID, API_HASH, BOT_TOKEN, PORT, BIN_CHANNEL, ADMINS
 from utils import temp, get_readable_time
+from blacklist import load_blacklist_cache, load_pending_deletions
 
 
 class Bot(Client):
@@ -50,6 +51,11 @@ class Bot(Client):
         temp.ME     = me.id
         temp.U_NAME = me.username
         temp.B_NAME = me.first_name
+
+        # Blacklist feature: patterns cache load karo, aur agar restart se pehle
+        # koi delete pending thi to use RAM mein wapas schedule/turant clear karo
+        await load_blacklist_cache()
+        await load_pending_deletions(self)
 
         print(f"🔥 {me.first_name} started in Admin-Only Mode!")
 
