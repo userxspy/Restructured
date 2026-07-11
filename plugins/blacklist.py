@@ -211,16 +211,17 @@ async def blacklist_cmd(client, message):
 
 # ==========================================
 # 🕵️ AUTO-DELETE CHECKER  (GROUPS ONLY)
-# Koi bhi admin blacklisted word/pattern group mein bheje (text ya caption mein),
-# to woh message set kiye gaye time ke baad khud-ba-khud (restart-safe) delete ho jaayega.
+# Group ka koi bhi member (admin ho ya na ho) blacklisted word/pattern
+# bheje (text ya caption mein), to woh message set kiye gaye time ke baad
+# khud-ba-khud (restart-safe) delete ho jaayega.
 # group=-1 -> baaki sab handlers (jaise search) se pehle check ho jaata hai.
 # ==========================================
 
 @Client.on_message((filters.text | filters.caption) & filters.incoming & filters.group, group=-1)
 async def blacklist_checker(client, message):
-    if not message.from_user or message.from_user.id not in ADMINS:
-        return
-
+    # Note: Ye check group ke HAR member ke messages pe lagta hai — sirf bot
+    # admins ke nahi. (ADMINS check sirf /blacklist add|remove|list command
+    # tak simit hai, kyunki wahi decide karta hai kaunse words block karne hain.)
     content = message.text or message.caption or ""
     if not content or content.startswith("/"):
         return
