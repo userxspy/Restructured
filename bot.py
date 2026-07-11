@@ -16,7 +16,7 @@ from aiohttp import web
 from server import routes
 from config import LOG_CHANNEL, API_ID, API_HASH, BOT_TOKEN, PORT, BIN_CHANNEL, ADMINS
 from utils import temp, get_readable_time
-from blacklist import load_blacklist_cache, load_pending_deletions
+from plugins.blacklist import load_blacklist_cache, load_pending_deletions
 
 
 class Bot(Client):
